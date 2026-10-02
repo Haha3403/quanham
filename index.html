@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ôn quân hàm</title>
+<style>
+:root{--bg:#f3efe6;--card:#fff;--ink:#1e2a22;--mut:#667;--acc:#2f5d3a;--ok:#1f7a3a;--bad:#b3261e;--line:#d8d2c2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15201a;--card:#1f2d25;--ink:#eef1e8;--mut:#9fb0a4;--acc:#7fc08d;--ok:#6fd08a;--bad:#ff8a80;--line:#34463a}}
+:root[data-theme="dark"]{--bg:#15201a;--card:#1f2d25;--ink:#eef1e8;--mut:#9fb0a4;--acc:#7fc08d;--ok:#6fd08a;--bad:#ff8a80;--line:#34463a}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+.menu{min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:24px;max-width:480px;margin:auto}
+.menu h1{font:700 30px/1.15 Georgia,"Times New Roman",serif;margin:0 0 6px}
+.menu p{margin:0 0 10px;color:var(--mut)}
+.big{padding:16px;border-radius:12px;border:2px solid var(--acc);background:var(--card);font-weight:600;font-size:18px;text-align:left}
+.big.pri{background:var(--acc);color:#fff}
+.big small{display:block;font-weight:400;opacity:.8;font-size:14px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.bar button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:6px 12px}
+.tabs{display:flex;gap:6px;padding:10px 12px}
+.tabs button{flex:1;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--card)}
+.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.sec{padding:4px 12px 12px}
+.sec h3{margin:14px 0 8px;font:600 16px Georgia,serif}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.cd{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 4px;text-align:center;font-size:13px}
+.cd svg{height:104px;width:auto;display:block;margin:0 auto 4px}
+.quiz{height:100dvh;display:flex;flex-direction:column}
+.pic{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;padding:8px}
+.pic svg{height:100%;max-height:300px;width:auto}
+.panel{background:var(--card);border-top:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:10px}
+.ans{min-height:52px;border:2px dashed var(--line);border-radius:10px;padding:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ans i{color:var(--mut);font-size:14px}
+.bank{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.bank .c{padding:11px 2px;border-radius:10px;text-align:center}
+.c{padding:9px 14px;border-radius:999px;border:1px solid var(--acc);background:var(--bg);font-weight:600}
+.c:disabled{opacity:.3}
+.act{display:flex;gap:8px}
+.act button{flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-weight:600}
+.act .go{background:var(--acc);color:#fff;border-color:var(--acc)}
+.res{font-weight:600;font-size:15px}
+.res.ok{color:var(--ok)}.res.bad{color:var(--bad)}
+.res span{display:block;font-weight:400;color:var(--ink)}
+.end{padding:30px 20px;text-align:center;display:flex;flex-direction:column;gap:14px;max-width:420px;margin:auto}
+.end b{font:700 48px Georgia,serif}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const app=document.getElementById('app');
+const P=['Thiếu','Trung','Thượng','Đại'];
+const L=[];
+const add=(f,g,k,n,o)=>L.push(Object.assign({f,g,k,n},o));
+// Quân đội
+P.forEach((p,i)=>add('qd','Cấp tướng','gen',p+' tướng',{s:i+1}));
+P.forEach((p,i)=>add('qd','Sĩ quan cấp tá','ta',p+' tá',{s:i+1}));
+P.forEach((p,i)=>add('qd','Sĩ quan cấp úy','uy',p+' úy',{s:i+1}));
+P.slice(0,3).forEach((p,i)=>add('qd','Hạ sĩ quan','hsq',['Hạ','Trung','Thượng'][i]+' sĩ',{b:i+1}));
+['Binh nhì','Binh nhất'].forEach((n,i)=>add('qd','Binh sĩ','binh',n,{b:i+1}));
+// Công an
+P.forEach((p,i)=>add('ca','Cấp tướng','gen',p+' tướng',{s:i+1}));
+[['Sĩ quan nghiệp vụ','#f2c94c'],['Sĩ quan chuyên môn kĩ thuật','#7a4fb0']].forEach(([g,c])=>{
+  P.forEach((p,i)=>add('ca',g+' - cấp tá','ta',p+' tá',{s:i+1,c}));
+  P.forEach((p,i)=>add('ca',g+' - cấp úy','uy',p+' úy',{s:i+1,c}));
+});
+[['Hạ sĩ quan nghiệp vụ','#f2c94c'],['Hạ sĩ quan chuyên môn kĩ thuật','#7a4fb0'],['Hạ sĩ quan nghĩa vụ','#f2c94c']].forEach(([g,c])=>
+  ['Hạ','Trung','Thượng'].forEach((p,i)=>add('ca',g,'hsq',p+' sĩ',{b:i+1,c})));
+['Binh nhì','Binh nhất'].forEach((n,i)=>add('ca','Chiến sĩ nghĩa vụ','binh',n,{b:i+1}));
+
+function svg(r){
+  const qd=r.f=='qd',k=r.k;let fill,stroke,b='';
+  if(k=='gen'){fill=qd?'#6b5a2e':'#7a1f2b';stroke='#4a1a14'}
+  else if(k=='ta'||k=='uy'){fill=qd?'#f2d33a':'#d8392b';stroke=qd?'#b33':'#7a1a14'}
+  else{fill=qd?'#cfcfc8':'#d9566e';stroke=qd?'#c33':'#9a2a40'}
+  if(qd&&(k=='ta'||k=='uy')){const n=k=='ta'?2:1;for(let i=0;i<n;i++)b+=`<rect x="8" y="${12+i*7}" width="44" height="3.5" fill="#7a2a1a"/>`}
+  if(!qd&&(k=='ta'||k=='uy')){const n=k=='ta'?2:1;for(let i=0;i<n;i++)b+=`<rect x="${n==1?27:21+i*12}" y="8" width="6" height="86" fill="${r.c}"/>`}
+  if(r.s){let pts;
+    if(k=='gen'||qd){const y0=k=='gen'?26:34;pts=[...Array(r.s)].map((_,i)=>[30,y0+i*15])}
+    else pts=[[[30,46]],[[22,46],[38,46]],[[22,36],[38,36],[30,56]],[[22,36],[38,36],[22,56],[38,56]]][r.s-1];
+    const cu=!qd&&k!='gen';
+    b+=pts.map(([x,y])=>`<text x="${x}" y="${y}" font-size="14" text-anchor="middle" fill="${k=='gen'?'#e8c34a':cu?'#f5d36a':'#7a4a10'}"${cu?' stroke="#5a3a00" stroke-width=".5"':''}>★</text>`).join('')}
+  if(k=='hsq')for(let i=0;i<r.b;i++)b+=qd?`<rect x="8" y="${14+i*9}" width="44" height="4" fill="#c33"/>`:`<rect x="8" y="${50+i*10}" width="44" height="5" fill="${r.c}"/>`;
+  if(k=='binh')for(let i=0;i<r.b;i++)b+=`<path d="M8 ${14+i*12} L30 ${30+i*12} L52 ${14+i*12}" fill="none" stroke="${qd?'#c33':'#e8c34a'}" stroke-width="4"/>`;
+  return `<svg viewBox="0 0 60 120" xmlns="http://www.w3.org/2000/svg"><polygon points="6,6 54,6 54,92 30,114 6,92" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>${b}<circle cx="30" cy="97" r="6.5" fill="#e8c34a" stroke="#a8842a"/><text x="30" y="100.5" font-size="9" text-anchor="middle" fill="#a8842a">★</text></svg>`;
+}
+
+function menu(){
+  app.innerHTML=`<div class="menu"><h1>Ôn quân hàm</h1><p>Quân đội nhân dân và Công an nhân dân Việt Nam.</p>
+  <button class="big" onclick="view('all')">Xem tất cả<small>Tra cứu cấp hiệu theo nhóm</small></button>
+  <button class="big pri" onclick="start('all')">Trắc nghiệm: tất cả<small>Nhìn cấp hiệu, ghép tên bằng các mảnh</small></button>
+  <button class="big" onclick="start('qd')">Trắc nghiệm: Quân đội</button>
+  <button class="big" onclick="start('ca')">Trắc nghiệm: Công an</button></div>`;
+}
+let tab='all';
+function view(t){
+  if(t)tab=t;
+  const list=L.filter(r=>tab=='all'||r.f==tab);
+  const groups=[];list.forEach(r=>{const key=(r.f=='qd'?'Quân đội: ':'Công an: ')+r.g;let g=groups.find(x=>x[0]==key);if(!g)groups.push(g=[key,[]]);g[1].push(r)});
+  app.innerHTML=`<div class="bar"><button onclick="menu()">← Menu</button><b>Tất cả quân hàm</b><span></span></div>
+  <div class="tabs">${[['all','Tất cả'],['qd','Quân đội'],['ca','Công an']].map(([k,n])=>`<button class="${tab==k?'on':''}" onclick="view('${k}')">${n}</button>`).join('')}</div>
+  ${groups.map(([n,rs])=>`<div class="sec"><h3>${n}</h3><div class="grid">${rs.map(r=>`<div class="cd">${svg(r)}${r.n}</div>`).join('')}</div></div>`).join('')}`;
+}
+
+const TOK=['úy','tá','tướng','sĩ','Binh','Hạ','nhì','nhất','Thiếu','Trung','Thượng','Đại'];
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let Q,qi,sel,bank,done,ok,wrong;
+function start(f){Q=shuf(L.filter(r=>f=='all'||r.f==f)).slice(0,20);qi=0;ok=0;wrong=[];next0()}
+function next0(){sel=[];done=false;bank=TOK;quiz()}
+function quiz(){
+  const r=Q[qi];
+  app.innerHTML=`<div class="quiz"><div class="bar"><button onclick="menu()">← Menu</button><span>Câu ${qi+1}/${Q.length}</span><span>Đúng: ${ok}</span></div>
+  <div class="pic">${svg(r)}</div>
+  <div class="panel"><div class="ans">${sel.length?sel.map((t,j)=>`<button class="c" ${done?'disabled':''} onclick="rm(${j})">${t}</button>`).join(''):'<i>Chạm các mảnh bên dưới để ghép tên quân hàm</i>'}</div>
+  <div id="res"></div>
+  <div class="bank">${bank.map(t=>`<button class="c" ${sel.includes(t)||done?'disabled':''} onclick="pick('${t}')">${t}</button>`).join('')}</div>
+  <div class="act">${done?`<button class="go" onclick="nextQ()">${qi+1<Q.length?'Câu tiếp':'Xem kết quả'}</button>`:`<button onclick="sel=[];quiz()">Xóa</button><button class="go" onclick="check()">Xác nhận</button>`}</div></div></div>`;
+  if(done)showRes();
+}
+function pick(t){if(!done){sel.push(t);quiz()}}
+function rm(j){sel.splice(j,1);quiz()}
+function showRes(){
+  const r=Q[qi],a=sel.join(' '),good=a==r.n;
+  document.getElementById('res').innerHTML=`<div class="res ${good?'ok':'bad'}">${good?'Đúng rồi!':'Sai rồi'}<span>Bạn ghép: ${a}</span><span>Đáp án: <b>${r.n}</b> (${r.f=='qd'?'Quân đội':'Công an'} - ${r.g})</span></div>`;
+}
+function check(){
+  if(!sel.length)return;
+  done=true;const r=Q[qi];
+  if(sel.join(' ')==r.n)ok++;else wrong.push(r);
+  quiz();
+}
+function nextQ(){
+  if(++qi>=Q.length){
+    app.innerHTML=`<div class="end"><b>${ok}/${Q.length}</b><div>${ok==Q.length?'Tuyệt đối!':'Câu sai cần xem lại:'}</div>
+    <div class="grid">${wrong.map(r=>`<div class="cd">${svg(r)}${r.n}</div>`).join('')}</div>
+    <button class="big pri" onclick="menu()">Về menu</button></div>`;
+    return;
+  }
+  next0();
+}
+menu();
+</script>
+</body>
+</html>

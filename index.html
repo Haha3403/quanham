@@ -58,6 +58,21 @@ button{font:inherit;color:inherit;cursor:pointer}
 #msg{color:var(--bad);font-size:14px;min-height:1px}
 .end{padding:30px 20px;text-align:center;display:flex;flex-direction:column;gap:14px;max-width:420px;margin:auto}
 .end b{font:700 48px Georgia,serif}
+.tm{height:6px;background:var(--line);overflow:hidden}
+.tm i{display:block;height:100%;width:100%;transform-origin:left center;will-change:transform}
+.sl{padding:6px 0 12px;border-top:1px solid var(--line)}
+.sl div{display:flex;justify-content:space-between;padding:6px 0}
+.sl input{width:100%;accent-color:var(--acc);margin:4px 0}
+.ov{position:fixed;left:0;top:0;right:0;bottom:0;z-index:50;background:rgba(8,14,10,.66);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;animation:ovin .2s ease-out}
+.ov .box{width:100%;max-width:380px;background:var(--card);border-radius:16px;padding:20px;text-align:center;display:flex;flex-direction:column;gap:10px;box-shadow:0 12px 40px rgba(0,0,0,.4);animation:ovpop .22s ease-out}
+.ov .oh{font:700 26px Georgia,serif;color:var(--bad)}
+.ov svg{height:110px;width:auto;margin:0 auto}
+.ov span{display:block;color:var(--mut);font-size:14px}
+.ov .mut{color:var(--mut);font-size:14px}
+.ov button{padding:14px;border-radius:10px;border:0;background:var(--acc);color:#fff;font-weight:600;font-size:17px;margin-top:4px}
+.ov button:disabled{opacity:.45}
+@keyframes ovin{from{opacity:0}to{opacity:1}}
+@keyframes ovpop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -96,12 +111,12 @@ function svg(r){
     else pts=[[[30,50]],[[20,22],[40,22]],[[20,22],[40,22],[30,56]],[[20,22],[40,22],[30,44],[30,66]]][r.s-1];
     const cu=!qd&&k!='gen';
     b+=pts.map(([x,y])=>`<text x="${x}" y="${y}" font-size="14" text-anchor="middle" fill="${k=='gen'?'#e8c34a':cu?'#f5d36a':'#7a4a10'}"${cu?' stroke="#5a3a00" stroke-width=".5"':''}>★</text>`).join('')}
-  if(k=='hsq')for(let i=0;i<r.b;i++)b+=qd?`<rect x="8" y="${14+i*9}" width="44" height="4" fill="#c33"/>`:`<rect x="8" y="${50+i*10}" width="44" height="5" fill="${r.c}"/>`;
+  if(k=='hsq')for(let i=0;i<r.b;i++)b+=qd?`<rect x="8" y="${14+i*9}" width="44" height="4" fill="#c33"/>`:`<rect x="7.5" y="${14+i*9}" width="45" height="${r.c=='#7a4fb0'?6.5:5}" fill="${r.c}"/>`;
   if(k=='binh')for(let i=0;i<r.b;i++)b+=`<path d="M8 ${14+i*12} L30 ${30+i*12} L52 ${14+i*12}" fill="none" stroke="${qd?'#c33':'#e8c34a'}" stroke-width="4"/>`;
   return `<svg viewBox="0 0 60 120" xmlns="http://www.w3.org/2000/svg"><polygon points="6,6 54,6 54,92 30,114 6,92" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>${b}<circle cx="30" cy="97" r="6.5" fill="#e8c34a" stroke="#a8842a"/><text x="30" y="100.5" font-size="9" text-anchor="middle" fill="#a8842a">★</text></svg>`;
 }
 
-const cfg={qd:true,ca:true,hsq:true,binh:true,snd:true};
+const cfg={qd:true,ca:true,hsq:true,binh:true,snd:true,timer:true,sec:5};
 let AC;
 const SFX={ok:new Audio('correct.mp3'),bad:new Audio('incorrect.mp3')};
 Object.values(SFX).forEach(a=>a.preload='auto');
@@ -112,9 +127,10 @@ function beep(t){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)(
   const seq={tap:[[660,.05]],ok:[[660,.1],[880,.16]],bad:[[220,.18],[160,.25]],win:[[523,.1],[659,.1],[784,.1],[1047,.25]]}[t];let at=AC.currentTime;
   seq.forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=t=='bad'?'sawtooth':'sine';o.frequency.value=f;g.gain.setValueAtTime(.15,at);g.gain.exponentialRampToValueAtTime(.001,at+d);o.connect(g);g.connect(AC.destination);o.start(at);o.stop(at+d);at+=d*.9})}catch(e){}}
 function menu(){
+  stopT();
   app.innerHTML=`<div class="menu"><h1>Ôn quân hàm</h1><p>Quân đội nhân dân và Công an nhân dân Việt Nam.</p>
   <button class="big" onclick="view('all')">Xem tất cả<small>Tra cứu cấp hiệu theo nhóm</small></button>
-  <div class="opts"><b>Nội dung trắc nghiệm</b>${[['qd','Quân hàm Quân đội'],['ca','Quân hàm Công an'],['hsq','Hạ sĩ quan (hạ sĩ, trung sĩ, thượng sĩ)'],['binh','Binh sĩ / chiến sĩ (binh nhì, binh nhất)']].map(sw).join('')}<b>Khác</b>${sw(['snd','Âm thanh'])}</div>
+  <div class="opts"><b>Nội dung trắc nghiệm</b>${[['qd','Quân hàm Quân đội'],['ca','Quân hàm Công an'],['hsq','Hạ sĩ quan (hạ sĩ, trung sĩ, thượng sĩ)'],['binh','Binh sĩ / chiến sĩ (binh nhì, binh nhất)']].map(sw).join('')}<b>Khác</b>${sw(['snd','Âm thanh'])}<label class="sw"><span>Chế độ bấm giờ</span><input type="checkbox" ${cfg.timer?'checked':''} onchange="cfg.timer=this.checked;snd('tap');menu()"><i></i></label>${cfg.timer?`<div class="sl"><div><span>Thời gian mỗi câu</span><b id="sv">${cfg.sec}s</b></div><input type="range" min="5" max="60" step="5" value="${cfg.sec}" oninput="cfg.sec=+this.value;document.getElementById('sv').textContent=this.value+'s'"></div>`:''}</div>
   <div id="msg"></div>
   <button class="big pri" onclick="start()">Bắt đầu trắc nghiệm<small>Nhìn cấp hiệu, ghép tên bằng các mảnh</small></button></div>`;
 }
@@ -131,20 +147,37 @@ function view(t){
 
 const TOK=['úy','tá','tướng','sĩ','Binh','Hạ','nhì','nhất','Thiếu','Trung','Thượng','Đại'];
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-let Q,qi,sel,bank,done,ok,wrong;
+let Q,qi,sel,bank,done,ok,wrong,tout=false,dl=0,raf=0,lf=0;
+const tl=()=>Math.max(0,(dl-performance.now())/(cfg.sec*1000));
+const tc=p=>p>.5?'var(--acc)':p>.25?'#e0a82e':'var(--bad)';
+function stopT(){cancelAnimationFrame(raf);raf=0}
+function runT(){
+  stopT();if(!cfg.timer||done)return;
+  (function f(){
+    const p=tl(),el=document.getElementById('tmf'),tt=document.getElementById('tmt');
+    if(el){el.style.transform='scaleX('+p+')';el.style.background=tc(p)}
+    if(tt)tt.textContent=Math.ceil(p*cfg.sec)+'s';
+    if(p<=0){timeUp();return}
+    raf=requestAnimationFrame(f)})()
+}
+function timeUp(){stopT();if(done)return;done=true;tout=true;wrong.push(Q[qi]);snd('bad');quiz()}
+const ov=r=>`<div class="ov"><div class="box"><div class="oh">⏰ Hết giờ!</div>${svg(r)}<div>Đáp án: <b>${r.n}</b><span>${r.f=='qd'?'Quân đội':'Công an'} - ${r.g}</span></div>${sel.length?`<div class="mut">Bạn ghép: ${sel.join(' ')}</div>`:''}<button id="ovb" disabled onclick="nextQ()">${qi+1<Q.length?'Tiếp tục':'Xem kết quả'}</button></div></div>`;
 function start(){const pool=L.filter(r=>cfg[r.f]&&(cfg.hsq||r.k!='hsq')&&(cfg.binh||r.k!='binh'));
   if(!pool.length){document.getElementById('msg').textContent='Hãy bật ít nhất Quân đội hoặc Công an.';return}
   snd('tap');Q=shuf(pool).slice(0,20);qi=0;ok=0;wrong=[];next0()}
-function next0(){sel=[];done=false;bank=TOK;quiz()}
+function next0(){sel=[];done=false;tout=false;bank=TOK;dl=performance.now()+cfg.sec*1000;quiz()}
 function quiz(){
-  const r=Q[qi];
-  app.innerHTML=`<div class="quiz"><div class="bar"><button onclick="menu()">← Menu</button><span>Câu ${qi+1}/${Q.length}</span><span>Đúng: ${ok}</span></div>
+  const r=Q[qi],p=done?(tout?0:lf):tl();
+  app.innerHTML=`<div class="quiz"><div class="bar"><button onclick="menu()">← Menu</button><span>Câu ${qi+1}/${Q.length}${cfg.timer?` · <b id="tmt">${Math.ceil(p*cfg.sec)}s</b>`:''}</span><span>Đúng: ${ok}</span></div>
+  ${cfg.timer?`<div class="tm"><i id="tmf" style="transform:scaleX(${p});background:${tc(p)}"></i></div>`:''}
   <div class="pic">${svg(r)}</div>
   <div class="panel"><div class="ans">${sel.length?sel.map((t,j)=>`<button class="c" ${done?'disabled':''} onclick="rm(${j})">${t}</button>`).join(''):'<i>Chạm các mảnh bên dưới để ghép tên quân hàm</i>'}</div>
   <div id="res"></div>
   <div class="bank">${bank.map(t=>`<button class="c" ${sel.includes(t)||done?'disabled':''} onclick="pick('${t}')">${t}</button>`).join('')}</div>
-  <div class="act">${done?`<button class="go" onclick="nextQ()">${qi+1<Q.length?'Câu tiếp':'Xem kết quả'}</button>`:`<button onclick="sel=[];quiz()">Xóa</button><button class="go" onclick="check()">Xác nhận</button>`}</div></div></div>`;
-  if(done)showRes();
+  <div class="act">${done?`<button class="go" onclick="nextQ()">${qi+1<Q.length?'Câu tiếp':'Xem kết quả'}</button>`:`<button onclick="sel=[];quiz()">Xóa</button><button class="go" onclick="check()">Xác nhận</button>`}</div></div>${tout?ov(r):''}</div>`;
+  runT();
+  if(done&&!tout)showRes();
+  if(tout)setTimeout(()=>{const b=document.getElementById('ovb');if(b)b.disabled=false},600);
 }
 function pick(t){if(!done){snd('tap');sel.push(t);quiz()}}
 function rm(j){snd('tap');sel.splice(j,1);quiz()}
@@ -156,7 +189,7 @@ function check(){
   if(!sel.length)return;
   const r=Q[qi];
   if(sel.join(' ')==r.n){ok++;snd('ok');confetti();nextQ();return}
-  done=true;wrong.push(r);snd('bad');
+  lf=tl();done=true;wrong.push(r);snd('bad');
   quiz();
 }
 function confetti(){
@@ -170,6 +203,7 @@ function confetti(){
 }
 function nextQ(){
   if(++qi>=Q.length){
+    stopT();
     if(ok>=Q.length*.8)snd('win');
     app.innerHTML=`<div class="end"><b>${ok}/${Q.length}</b><div>${ok==Q.length?'Tuyệt đối!':'Câu sai cần xem lại:'}</div>
     <div class="grid">${wrong.map(r=>`<div class="cd">${svg(r)}${r.n}</div>`).join('')}</div>
